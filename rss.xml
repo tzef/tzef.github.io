@@ -1,0 +1,68 @@
+<rss version="2.0">
+	<channel>
+		<title>棒棒u! BLOG</title>
+		<link>http://bunbunu.com/blog</link>
+		<description>棒棒u! 與小夥伴們的文章分享</description>
+		<language>zh-tw</language>
+		<pubDate>Mon, 18 July 2016 03:21:00 GMT</pubDate>
+		<lastBuildDate>Mon, 18 July 2016 03:21:00 GMT</lastBuildDate>
+		<webMaster>admin@bunbunu.com</webMaster>
+		<item>
+			<title>淺入淺出 RxSwift &amp; MVP : Part 1 - 源起</title>
+			<link>
+			http://bunbunu.com/blogs/1
+			</link>
+			<description>
+			這個月來全面採用 RxSwfit 與 MVP 程式架構的系列心得首部曲
+			<br></br>
+			前期打算寫一些學習過程的經驗分享
+			<br></br>
+			接著會長期更新我使用此組合開發的實例希望能與大家討論，避免閉門造車有錯誤還沾沾自喜不自知
+			<br></br>
+			內含
+			<ol>
+				<li>無病呻呤</li>
+				<li>個人建議的學習方式</li>
+				<li>什麼是 Functional Programming？ RxSwift 與其又有何關係？</li>
+				<li>我為什麼要用 RxSwfit？ 用了後世界有什麼變化？</li>
+			</ol>
+			</description>
+			<pubDate>Mon, 18 July 2016 03:30:00 GMT</pubDate>
+		</item>
+		<item>
+			<title>淺入淺出 RxSwift &amp; MVP : Part 2 - 轉承</title>
+			<link>
+			http://bunbunu.com/blogs/2
+			</link>
+			<description>
+			這個月來全面採用 RxSwfit 與 MVP 程式架構的系列心得二部曲
+			<br></br>
+			內含
+			<ol>
+				<li>RxSwift 的運作模式</li>
+				<li>RxSwift 的角色分工</li>
+				<li>Foundation 世界的 RxSwift：RxCocoa</li>
+			</ol>
+			</description>
+			<pubDate>Mon, 18 July 2016 04:30:00 GMT</pubDate>
+		</item>
+		<item>
+			<title>淺入淺出 RxSwift &amp; MVP : Part 3 - 合</title>
+			<link>
+			http://bunbunu.com/blogs/3
+			</link>
+			<description>
+			這個月來全面採用 RxSwfit 與 MVP 程式架構的系列心得三部曲
+			<br></br>
+			內含
+			<ol>
+				<li>MVP 架構簡介</li>
+				<li>MVP 與 RxSwift 的簡單範例：公告列表</li>
+				<li>此開發模式的優點為何？</li>
+				<li>練習題討論：此開發思維下如何進一步修改功能</li>
+			</ol>
+			</description>
+			<pubDate>Mon, 18 July 2016 05:30:00 GMT</pubDate>
+		</item>
+	</channel>
+</rss>
