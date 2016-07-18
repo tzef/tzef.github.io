@@ -12,6 +12,9 @@
 			<link>
 			http://bunbunu.com/blogs/1
 			</link>
+			<image>
+			http://bunbunu.com/assets/blogimage/blog1.png
+			</image>
 			<description>
 			這個月來全面採用 RxSwfit 與 MVP 程式架構的系列心得首部曲
 			<br></br>
@@ -34,6 +37,9 @@
 			<link>
 			http://bunbunu.com/blogs/2
 			</link>
+			<image>
+			http://bunbunu.com/assets/blogimage/blog2.png
+			</image>
 			<description>
 			這個月來全面採用 RxSwfit 與 MVP 程式架構的系列心得二部曲
 			<br></br>
@@ -51,6 +57,9 @@
 			<link>
 			http://bunbunu.com/blogs/3
 			</link>
+			<image>
+			http://bunbunu.com/assets/blogimage/blog3.png
+			</image>
 			<description>
 			這個月來全面採用 RxSwfit 與 MVP 程式架構的系列心得三部曲
 			<br></br>
