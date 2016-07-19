@@ -150,11 +150,6 @@
 									</li>
 								</ul>
 
-
-<h1 id="淺入淺出-rxswift-mvp-part-2">淺入淺出 RxSwift &amp; MVP : Part 2</h1>
-
-<hr>
-
 <h3 id="前情提要">前情提要</h3>
 
 <p>物件導向是厲害的心法，可以讓招式變得靈活，做到降低代碼耦合，讓招式跟招式間可以單獨存在、也可以互相組裝湊成一個套路</p>
@@ -178,10 +173,10 @@
 
 <p>我這裡由圖表比較在戰場上敵軍來襲這種狀況發生時，使用代理和觀察者模式的兩種實踐方式
 <br>想更清楚比較差異，可以看參考連結作者的 <em>Why Use Rx?</em>，裡頭比較了 <em>Delegate</em>、<em>KVO</em> 等跟 <em>Rx</em> 的差別</p>
-<img src="http://bunbunu.com/assets/blogimage/blog2_delegate.png" alt="" title="">
-<p>使用代理處理的話，在觀測所必須要準備所有需要知道敵軍來襲這件事的地區信使(delegate)，再由 delegate 來呼叫執行對應的處理
-<img src="http://bunbunu.com/assets/blogimage/blog2_observe.png" alt="" title="">
-<p>在觀察者模式中，觀測所只需要照顧好自己的任務：發現敵軍來襲並且點燃信號，不必理會後續其他地方對應的處理方式
+<img class="img-responsive" src="http://bunbunu.com/assets/blogimage/blog2_delegate.png" alt="" title="">
+<p>使用代理處理的話，在觀測所必須要準備所有需要知道敵軍來襲這件事的地區信使(delegate)，再由 delegate 來呼叫執行對應的處理</p>
+<img class="img-responsive" src="http://bunbunu.com/assets/blogimage/blog2_observe.png" alt="" title="">
+<p>在觀察者模式中，觀測所只需要照顧好自己的任務：發現敵軍來襲並且點燃信號，不必理會後續其他地方對應的處理方式<p>
 <h4 id="rxswift-實踐觀察者模式主要需要三個角色"><strong>RxSwift</strong> 實踐觀察者模式主要需要三個角色</h4>
 
 <h5 id="observable"><strong>Observable</strong></h5>
@@ -390,7 +385,9 @@ observer.<span class="hljs-keyword">on</span>(.<span class="hljs-keyword">Next</
 RxSwift GitHub <a target="_blank" href="https://github.com/ReactiveX/RxSwift">[here]</a><br>
 Why use Rx <a target="_blank" href="https://github.com/ReactiveX/RxSwift/blob/master/Documentation/Why.md">[here]</a><br>
 RxMarbles <a target="_blank" href="http://rxmarbles.com">[here]</a><br>
-Wiki Observer pattern 定義 <a target="_blank" href="https://en.wikipedia.org/wiki/Observer_pattern">[here]</a>
+Wiki Observer pattern 定義 <a target="_blank" href="https://en.wikipedia.org/wiki/Observer_pattern">[here]</a><br>
+淺入淺出 RxSwift &amp; MVP 系列 Part 1 <a target="_blank" href="http://bunbunu.com/blogs/1">[here]</a><br>
+淺入淺出 RxSwift &amp; MVP 系列 Part 3 <a target="_blank" href="http://bunbunu.com/blogs/3">[here]</a><br>
 
 							</div>
 

@@ -92,19 +92,19 @@
 											關於我
 										</a>
 										<ul class="dropdown-menu">
-											<li><a href="resume">個人履歷</a></li>
-											<li><a href="works">個人作品</a></li>
-											<li><a href="teamworks">團隊作品</a></li>
+											<li><a href="/resume">個人履歷</a></li>
+											<li><a href="/works">個人作品</a></li>
+											<li><a href="/teamworks">團隊作品</a></li>
 										</ul>
 									</li>
 									<li>
-										<a href="blog">部落格</a>
+										<a href="/blog">部落格</a>
 									</li>
 									<li>
 										<a href="/#services">開發流程</a>
 									</li>
 									<li>
-										<a href="showcase">案例介紹</a>
+										<a href="/showcase">案例介紹</a>
 									</li>
 									<li>
 										<a href="/#contact">與我聯繫</a>
@@ -150,6 +150,246 @@
 									</li>
 								</ul>
 
+<h3 id="前情提要">前情提要</h3>
+<p>Part1 和 Part2 分別講述了我對 <strong>Functional Programming</strong>、<strong>RxSwift 實作觀察者模式的看法</strong></p>
+
+<p>至於 <strong>MVP</strong> 是我現在專案的程式架構，本篇開始將會舉我在 <strong>MVP</strong> 架構下使用 <strong>RxSwift</strong> 的一些例子，理論上會是個長期計劃，在我忘記以前我會記得更新的 <br>
+當然這些只是我個人的做法，有任何想法建議希望可以提出，我會非常感謝你的</p>
+
+<p>關於 <strong>MVP</strong> 的功能架構我是參考 <a target="_blank" href="https://github.com/googlesamples/android-architecture">Google Architecture</a> <br>
+可以花些時間看看 Google 是怎麼架構 MVP的</p>
+
+<blockquote>
+  <p>簡短的介紹一下 MVP 的構照，就是將程式分成</p>
+  
+  <ul>
+  <li><strong>Repository</strong> <br>
+  <strong>Repository</strong> 就是 <strong>MVP</strong> 中的 Model，負責一切資料的存取</li>
+  <li><strong>View</strong> <br>
+  畫面顯示</li>
+  <li><strong>Presenter</strong> <br>
+  負責 <strong>View</strong> 對應所需的一切邏輯操作</li>
+  </ul>
+</blockquote>
+
+<p><strong>View</strong> 跟 <strong>Presenter</strong> 是一對一的關係，我分類是依功能區分 <br>
+<strong>View</strong> 跟 <strong>Presenter</strong> 要做的事都會定義在 <strong>Protocol</strong>，可以一目瞭然知道這個功能在做什麼 <br>
+<strong>View</strong> 的 <em>viewDidLoad</em> 要初始化一個 <strong>Presenter</strong>，並且把自己的 <em>viewProtocol</em> 傳進去，所有 <strong>View</strong> 要做什麼都由 <strong>Presenter</strong> 發號司</p>
+
+<hr>
+
+<p>以下舉公告列表這個功能為例，編輯跟搜尋先不管 <br>
+只處理從伺服器拿到公告消息資料並顯示在 Table 上這個任務</p>
+
+<blockquote>
+  <p>Announcement 資料夾裡就會有</p>
+  
+  <ul>
+  <li>AnnouncementProtocol</li>
+  <li>AnnouncementPresenter</li>
+  <li>AnnouncementViewController</li>
+  </ul>
+  
+  <p>Repository 資料來裡有</p>
+  
+  <ul>
+  <li>AnnouncementRepository</li>
+  </ul>
+</blockquote>
+
+<p>先看 <em>AnnouncementProtocol</em> 的內容，分別列出 <strong>Presenter</strong> 跟 <strong>View</strong> 的任務 <br>
+以目前功能來說，<strong>View</strong> 只有一個動作，點選公告列表 <br>
+<strong>Presenter</strong> 也只需要做一件事，將 <em>table</em> 和 <em>data</em> 綁定</p>
+
+<pre class="prettyprint"><code class=" hljs mizar">protocol AnnouncementViewProtocol {
+    <span class="hljs-keyword">func</span> announcementSelected(model: AnnouncementModel)
+}
+protocol AnnouncementPresenterProtocol {
+    <span class="hljs-keyword">func</span> bindAnnouncementListData(tableView: UITableView)
+}</code></pre>
+
+<hr>
+
+<p>接著看 <strong>Repository</strong> 的程式 <br>
+<em>AnnouncementRepository</em> 為 <em>singleton</em>，裡頭將公告資料型態是 <strong>Variable</strong>，這是一個 <strong>BehaviorSubject</strong> 的封裝，會在資料變更時發送 <code>onNext()</code> <br>
+<em>updateAnnuncementListValue</em> 在第一次建立 <em>announcementList</em> 時會運行，目的是非同步更新公告資料並將資料賦值給 <em>announcementList</em></p>
+
+<pre class="prettyprint"><code class=" hljs haskell"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-type">AnnouncementRepository</span>: <span class="hljs-type">NSObject</span> {
+    static let sharedInstance = <span class="hljs-type">AnnouncementRepository</span><span class="hljs-container">()</span>
+
+    let disposeBag = <span class="hljs-type">DisposeBag</span><span class="hljs-container">()</span>
+    lazy var announcementList: <span class="hljs-type">Variable</span>&lt;[<span class="hljs-type">AnnouncementModel</span>]&gt; = {
+        <span class="hljs-type">AnnouncementRepository</span>.sharedInstance.updateAnnuncementListValue<span class="hljs-container">()</span>
+        return <span class="hljs-type">Variable</span><span class="hljs-container">([<span class="hljs-type">AnnouncementModel</span>]()</span>)
+    }<span class="hljs-container">()</span>
+
+    func updateAnnuncementListValue<span class="hljs-container">()</span> {
+        <span class="hljs-type">APIManager</span>.sharedInstance
+            .queryAnnouncements<span class="hljs-container">()</span>
+            .map { <span class="hljs-container">(<span class="hljs-title">response</span>)</span> -&gt; [<span class="hljs-type">AnnouncementModel</span>] in
+                //用 <span class="hljs-type">Mantle</span> 將 json 轉成 <span class="hljs-type">Model</span>
+                return <span class="hljs-type">MantleManager</span>.mantleArray<span class="hljs-container">(<span class="hljs-title">response</span>)</span>
+            }
+            .subscribeNext<span class="hljs-container">({ (<span class="hljs-title">result</span>: [<span class="hljs-type">AnnouncementModel</span>])</span> in
+                self.announcementList.value = results                
+            })
+            .addDisposableTo<span class="hljs-container">(<span class="hljs-title">disposeBag</span>)</span>
+    }
+}</span></code></pre>
+
+<hr>
+
+<p><em>APIManager.sharedInstance.queryAnnouncements()</em> 是 <strong>Alamofire</strong> 從伺服器拿公告資料，回傳一個 <strong>Observable</strong>，這個 <strong>Observable</strong> 會在收到資料時 <code>onNext</code> <br>
+附上<strong>Alamofire</strong> API 回傳 <strong>Observable</strong> 程式參考 </p>
+
+<pre class="prettyprint"><code class=" hljs coffeescript">func queryAnnouncements<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span> Observable&lt;AnyObject&gt; {
+    <span class="hljs-keyword">return</span> Observable.create<span class="hljs-function"><span class="hljs-params">({ (observer) -&gt; Disposable <span class="hljs-keyword">in</span>
+        Alamofire.request(.POST, url_queryAnnouncements, parameters: nil)
+                 .validate()
+                 .responseJSON(completionHandler: { (response) <span class="hljs-keyword">in</span>
+                    <span class="hljs-keyword">switch</span> response.result {
+                    <span class="hljs-reserved">case</span> .Success:
+                        observer.onNext(response.result.value!)
+                        observer.onCompleted()
+                        <span class="hljs-keyword">break</span>
+                    <span class="hljs-reserved">case</span> .Failure(<span class="hljs-reserved">let</span> error):
+                        observer.onError(error)
+                        <span class="hljs-keyword">break</span>
+                    }
+                 })
+        <span class="hljs-keyword">return</span> NopDisposable.instance
+    })</span>
+}</span></code></pre>
+
+<hr>
+
+<p><strong>View</strong> 的部份非常精簡，以目前功能除了本身的 <em>override</em>，只需實作 <strong>View Protocol</strong> 的 <code>announcementSelected(model: AnnouncementModel)</code></p>
+
+<pre class="prettyprint"><code class=" hljs cs">class AnnouncementViewController: AnnouncementViewProtocol {
+    @IBOutlet weak <span class="hljs-keyword">var</span> tableView: UITableView!
+    <span class="hljs-keyword">var</span> presenter: AnnouncementPresenter!
+
+    <span class="hljs-keyword">override</span> func viewDidLoad() {
+        super.viewDidLoad()
+
+        presenter = AnnouncementPresenter(<span class="hljs-keyword">delegate</span>: self)
+        presenter.bindAnnouncementListData(tableView)
+    }
+    <span class="hljs-keyword">override</span> func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> vc = segue.destinationViewController <span class="hljs-keyword">as</span>? DetailAnnouncementViewController, <span class="hljs-keyword">let</span> model = sender <span class="hljs-keyword">as</span>? AnnouncementModel {
+            vc.<span class="hljs-keyword">new</span> = model
+        }
+    }
+
+    <span class="hljs-comment">// MARK: - View Protocol</span>
+    func announcementSelected(model: AnnouncementModel) {
+        self.performSegueWithIdentifier(<span class="hljs-string">"detailView"</span>, sender: model)
+    }
+}</code></pre>
+
+<hr>
+
+<p>最後是 <strong>Presenter</strong> 的程式 <br>
+全部都是 <strong>RxTable</strong> 的實現，詳細程式都在 <strong>RxCocoa</strong>，主要是簡化繁鎖的 <em>UITableViewDelegate</em> 和 <em>UITableViewDataSource</em></p>
+
+<pre class="prettyprint"><code class=" hljs avrasm">class AnnouncementPresenter: AnnouncementPresenterProtocol {
+    var tableDelegate = AnouncementTableDelegate()
+    var viewDelegate: AnnouncementViewProtocol!
+
+    convenience init(delegate: AnnouncementViewProtocol) {
+        self<span class="hljs-preprocessor">.init</span>()
+        viewDelegate = delegate
+    }
+
+    func bindAnnouncementListData(tableView: UITableView) {
+        AnnouncementsRepository<span class="hljs-preprocessor">.sharedInstance</span>
+            <span class="hljs-preprocessor">.announcementList</span>
+            <span class="hljs-preprocessor">.asObservable</span>()
+            <span class="hljs-preprocessor">.bindTo</span>(tableView<span class="hljs-preprocessor">.rx</span>_itemsWithCellIdentifier(<span class="hljs-string">"cell"</span>, cellType: AnnouncementCell<span class="hljs-preprocessor">.self</span>)) { (row, element, cell) <span class="hljs-keyword">in</span>
+                cell<span class="hljs-preprocessor">.configureCell</span>(element)
+            }
+            <span class="hljs-preprocessor">.addDisposableTo</span>(disposeBag)
+
+        tableView
+            <span class="hljs-preprocessor">.rx</span>_modelSelected(AnnouncementModel)
+            <span class="hljs-preprocessor">.subscribeNext</span> { (model) <span class="hljs-keyword">in</span>
+                self<span class="hljs-preprocessor">.viewDelegate</span><span class="hljs-preprocessor">.announcementSelected</span>(model)
+            }
+            <span class="hljs-preprocessor">.addDisposableTo</span>(disposeBag)
+
+        tableView<span class="hljs-preprocessor">.rx</span>_setDelegate(tableDelegate)
+    }
+}
+class AnouncementTableDelegate: NSObject, UITableViewDelegate {
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -&gt; UITableViewCellEditingStyle {
+        return UITableViewCellEditingStyle<span class="hljs-preprocessor">.None</span>
+    }
+}</code></pre>
+
+<p><strong>MVP</strong> 搭配 <strong>RxSwift</strong> 最明顯的差異是 <strong>View</strong> 的程式碼非常精簡 <br>
+除了本來應該出現的 <em>UITableViewDelegate</em> 跟 <em>UITableViewDataSource</em> 由 <strong>RxSwift</strong> 處理</p>
+
+<p><strong>View</strong> 需要的公告資料也由 <strong>Presenter</strong> 跟 <strong>Repository</strong> 索取，<strong>View</strong> 儘管理與使用者的互動關係</p>
+
+<p><strong>View</strong> 的所有動作都交由 <strong>Presenter</strong> 處理，目前功能只有一個綁定 table 與 公告的關係</p>
+
+<p><strong>Presenter</strong> 處理拿到公告資料後要做什麼事，如果需要更新資料就叫 <strong>Repository</strong> 做，需要 <strong>View</strong> 更新畫面的，就由 <em>viewDelegate</em> 來做，所以一切 <strong>View</strong> 的後續動作，都要宣告在 <strong>ViewProtocol</strong> 中</p>
+
+<p><strong>Repository</strong> 需要處理好一切資料的操作，例如 API 錯誤時回傳預設資料，資料篩選等等，確保 <strong>Presenter</strong> 只會拿到”需要”的資料</p>
+
+<hr>
+
+<p>現在來做個練習題，假設下一個版本需要增加一個功能：</p>
+
+<pre><code>拿到的資料超過 30 天前要額外標註過期的狀態，我們的修改想法會是什麼？
+</code></pre>
+
+<p>首先在加一個 <em>NSDate</em> 的 <em>Extension</em> 來判斷公告是否過期，得到一個 expired 布林值</p>
+
+<pre><code>那這個 expired 要存在哪裡？ 原本的 AnnouncementModel 多一個參數嗎？
+</code></pre>
+
+<p>我比較不頃向於更動 <em>AnnouncementModel</em>，原因是日後可能會讓維護者誤以為 <em>expired</em> 是由 <em>Server</em> 回傳的數值，因此我會選將型態改成 <em>tuple</em> 多一個變數</p>
+
+<pre><code>那轉換 isExpired 的代碼應該擺在哪裡？
+</code></pre>
+
+<p>答案是放在 <strong>Repository</strong>，這絕對比放在 <em>MantleTransformer</em> 更好理解跟維護</p>
+
+<p>照這個思路，首先 <strong>Repository</strong> 的 <em>announcementList</em> 型態將會變成 <strong>Variable&lt;[(AnnouncementModel, expired: Bool)]&gt;</strong>，所以 <em>map function</em> 要修改成</p>
+
+<pre class="prettyprint"><code class=" hljs coffeescript">    .map<span class="hljs-function"><span class="hljs-params">({ (response) -&gt; [(AnnouncementModel, expired: Bool)] <span class="hljs-keyword">in</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-reserved">let</span> dic = response[<span class="hljs-string">"Announcements"</span>] as? [[NSObject : AnyObject]] {
+            <span class="hljs-reserved">let</span> modelArray: [AnnouncementModel] = MantleManager.mantleArray(dic)
+            <span class="hljs-keyword">return</span> modelArray.map({ (model: AnnouncementModel) -&gt; (AnnouncementModel, Bool) <span class="hljs-keyword">in</span>
+                <span class="hljs-keyword">return</span> (model, expired: model.createdAt.isExprired())
+            })
+        }
+
+        <span class="hljs-keyword">return</span> [(AnnouncementModel, expired: Bool)]()
+    })</span></span></code></pre>
+
+<p>因為 <strong>Variable</strong> 的型態改了，所以 <strong>View</strong> 跟 <strong>Presenter</strong> 也要做修改對嗎？</p>
+
+<p>完全不用，因為 <strong>RxSwift</strong> 使用了泛型(<em>Generic</em>)來做處理</p>
+
+
+
+<pre class="prettyprint"><code class=" hljs avrasm">    <span class="hljs-preprocessor">.bindTo</span>(tableView<span class="hljs-preprocessor">.rx</span>_itemsWithCellIdentifier(<span class="hljs-string">"cell"</span>, cellType: AnnouncementCell<span class="hljs-preprocessor">.self</span>)) { (row, element, cell) <span class="hljs-keyword">in</span>
+        cell<span class="hljs-preprocessor">.configureCell</span>(element)
+    }</code></pre>
+
+<p>這裡拿到的 <em>element</em> 就會自動變成是 <code>(AnnouncementModel, expired: Bool)</code> <br>
+所以我們接下來唯一要修改的只有 UI 的部份，也就是 <em>cell</em> 的 <em>configureCell</em></p>
+
+<p>然後 <strong>View</strong> 的 <code>announcementSelected()</code>，如果下一個 <em>detail</em> 頁面需要知道是否過期，那資料型態也得跟著修改，如果不需要知道，那就維持原狀，修改傳遞參數 <code>announcementSelected(model.0)</code> 把 tuple 第一個參數傳過去就好，完全不影響後續操作，也不會更動到原先的 Model</p>
+<hr>
+<p>參考連結</p>
+Google Android Architecture <a target="_blank" href="https://github.com/googlesamples/android-architecture">[here]</a><br>
+淺入淺出 RxSwift &amp; MVP 系列 Part 1 <a target="_blank" href="http://bunbunu.com/blogs/1">[here]</a><br>
+淺入淺出 RxSwift &amp; MVP 系列 Part 2 <a target="_blank" href="http://bunbunu.com/blogs/2">[here]</a><br>
+
+
 							</div>
 
 							<!-- PAGINATION -->
@@ -179,8 +419,6 @@
 									<li class="list-group-item"><a href="android"><span class="size-11 text-muted pull-right">(0)</span> Android</a></li>
 								</ul>
 								<!-- /side navigation -->
-
-							
 							</div>
 
 
@@ -290,10 +528,10 @@
 							<ul class="footer-links list-unstyled">
 								<li><a href="/">首頁</a></li>
 								<li><a href="resume">關於我</a></li>
-								<li><a href="blog">部落格</a></li>
+								<li><a href="/blog">部落格</a></li>
 								<li><a href="/#services">開發流程</a></li>
-								<li><a href="showcase">案例介紹</a></li>
-								<li><a href="works">個人作品</a></li>
+								<li><a href="/showcase">案例介紹</a></li>
+								<li><a href="/works">個人作品</a></li>
 								<li><a href="teamworks">團隊作品</a></li>
 								<li><a href="/#contact">與我聯繫</a></li>
 							</ul>
