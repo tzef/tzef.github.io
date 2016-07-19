@@ -92,19 +92,19 @@
 											關於我
 										</a>
 										<ul class="dropdown-menu">
-											<li><a href="resume">個人履歷</a></li>
-											<li><a href="works">個人作品</a></li>
-											<li><a href="teamworks">團隊作品</a></li>
+											<li><a href="/resume">個人履歷</a></li>
+											<li><a href="/works">個人作品</a></li>
+											<li><a href="/teamworks">團隊作品</a></li>
 										</ul>
 									</li>
 									<li>
-										<a href="blog">部落格</a>
+										<a href="/blog">部落格</a>
 									</li>
 									<li>
 										<a href="/#services">開發流程</a>
 									</li>
 									<li>
-										<a href="showcase">案例介紹</a>
+										<a href="/showcase">案例介紹</a>
 									</li>
 									<li>
 										<a href="/#contact">與我聯繫</a>
@@ -178,8 +178,10 @@
 
 <p>我這裡由圖表比較在戰場上敵軍來襲這種狀況發生時，使用代理和觀察者模式的兩種實踐方式
 <br>想更清楚比較差異，可以看參考連結作者的 <em>Why Use Rx?</em>，裡頭比較了 <em>Delegate</em>、<em>KVO</em> 等跟 <em>Rx</em> 的差別</p>
-<img src="http://bunbunu.com/assets/blogimage/blog2_delegate.png" alt="" title=""></p>
-<img src="http://bunbunu.com/assets/blogimage/blog2_observe.png" alt="" title=""></p>
+<img src="http://bunbunu.com/assets/blogimage/blog2_delegate.png" alt="" title="">
+<p>使用代理處理的話，在觀測所必須要準備所有需要知道敵軍來襲這件事的地區信使(delegate)，再由 delegate 來呼叫執行對應的處理
+<img src="http://bunbunu.com/assets/blogimage/blog2_observe.png" alt="" title="">
+<p>在觀察者模式中，觀測所只需要照顧好自己的任務：發現敵軍來襲並且點燃信號，不必理會後續其他地方對應的處理方式
 <h4 id="rxswift-實踐觀察者模式主要需要三個角色"><strong>RxSwift</strong> 實踐觀察者模式主要需要三個角色</h4>
 
 <h5 id="observable"><strong>Observable</strong></h5>
@@ -529,12 +531,12 @@ Wiki Observer pattern 定義 <a target="_blank" href="https://en.wikipedia.org/w
 							<h4 class="letter-spacing-1">網站地圖</h4>
 							<ul class="footer-links list-unstyled">
 								<li><a href="/">首頁</a></li>
-								<li><a href="resume">關於我</a></li>
-								<li><a href="blog">部落格</a></li>
+								<li><a href="/resume">關於我</a></li>
+								<li><a href="/blog">部落格</a></li>
 								<li><a href="/#services">開發流程</a></li>
-								<li><a href="showcase">案例介紹</a></li>
-								<li><a href="works">個人作品</a></li>
-								<li><a href="teamworks">團隊作品</a></li>
+								<li><a href="/showcase">案例介紹</a></li>
+								<li><a href="/works">個人作品</a></li>
+								<li><a href="/teamworks">團隊作品</a></li>
 								<li><a href="/#contact">與我聯繫</a></li>
 							</ul>
 							<!-- /Links -->
