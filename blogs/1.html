@@ -39,6 +39,8 @@
 		<meta name="theme-color" content="#ffffff">
 
 		<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://bunbunu.com/rss.xml" />
+
+		<a href="http://example.com/bar.html#disqus_thread">Link</a>.
 	</head>
 
 	<body class="smoothscroll enable-animation">
@@ -372,6 +374,28 @@ Wiki Functional Reactive Programming 定義 <a target="_blank" href="https://en.
 								<!-- /Pagination Default -->
 							</div>
 							<!-- /PAGINATION -->
+							<br>
+							<div id="disqus_thread"></div>
+							<script>
+							    /**
+							     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+							     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+							     */
+							    
+							    var disqus_config = function () {
+							        this.page.url = "http://bunbunu.com/blogs/1";  // Replace PAGE_URL with your page's canonical URL variable
+							        this.page.identifier = "blogs1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+							    };
+							    (function() {  // DON'T EDIT BELOW THIS LINE
+							        var d = document, s = d.createElement('script');
+							        
+							        s.src = '//bunbunu.disqus.com/embed.js';
+							        
+							        s.setAttribute('data-timestamp', +new Date());
+							        (d.head || d.body).appendChild(s);
+							    })();
+							</script>
+							<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 						</div>
 
 						<!-- RIGHT -->
@@ -595,5 +619,7 @@ Wiki Functional Reactive Programming 定義 <a target="_blank" href="https://en.
 
 		<!-- GOOGLE ANALYTICS -->
 		<script type="text/javascript" src="../assets/js/ga.js"></script>
+
+		<script id="dsq-count-scr" src="//bunbunu.disqus.com/count.js" async></script>
 	</body>
 </html>
