@@ -151,6 +151,244 @@
 								</ul>
 
 
+<h1 id="淺入淺出-rxswift-mvp-part-2">淺入淺出 RxSwift &amp; MVP : Part 2</h1>
+
+<hr>
+
+<h3 id="前情提要">前情提要</h3>
+
+<p>物件導向是厲害的心法，可以讓招式變得靈活，做到降低代碼耦合，讓招式跟招式間可以單獨存在、也可以互相組裝湊成一個套路</p>
+
+<p>但套路一多，這些靈活反而讓整體變得複雜，今天某個動作會造成缺失讓敵人有機可趁 <br>
+而我們想要修改掉這個缺陷，光是重構跟理解這些套路就要花許多功夫，重點是做起來會非常不開心</p>
+
+<p>所以這幾年來我學設計模式、調整程式架構從 <strong>MVC</strong> 到 <strong>MVP</strong>，到現在引入 <strong>RxSwift</strong> 都是為了同一個目標</p>
+
+<p>讓程式能更加清楚，更方便測試 <br>
+以前我的專案要更改一個功能假設時間是十分鐘，在一年後改相同的功能可能卻要花兩個小時去研究跟回想，希望能夠做到讓專案不管放多久甚致換了一個工程師，都能清楚掌握其脈絡 <img src="http://bunbunu.com/assets/bloggif/line_1015268_28.png" alt="" title=""></p>
+
+<h3 id="接下來正式進入-rxswift-的世界">接下來正式進入 <strong>RxSwift</strong> 的世界</h3>
+
+<p>首先我們要明白 <strong>RxSwift</strong> 是使用<strong>觀察者模式</strong>來傳送事件</p>
+
+<p>在 iOS <em>Foudation</em> 裡封裝了一個物件 <em>NSNotificationCenter</em> 就是<strong>觀察者模式</strong> <br>
+除了自定義 function，也可以監聽系統事件，像觀察<em>UIKeyboardWillShowNotification</em>、<em>UIKeyboardWillHideNotification</em> 做到在鍵盤出現時調整 UI</p>
+
+<p>我認為觀察者模式在職責上區分更清楚，資料層就不需要管其它地方需要做什麼事</p>
+
+<p>我這裡由圖表比較在戰場上敵軍來襲這種狀況發生時，使用代理和觀察者模式的兩種實踐方式
+<br>想更清楚比較差異，可以看參考連結作者的 <em>Why Use Rx?</em>，裡頭比較了 <em>Delegate</em>、<em>KVO</em> 等跟 <em>Rx</em> 的差別</p>
+<img src="http://bunbunu.com/assets/blogimage/blog2_delegate.png" alt="" title=""></p>
+<img src="http://bunbunu.com/assets/blogimage/blog2_observe.png" alt="" title=""></p>
+<h4 id="rxswift-實踐觀察者模式主要需要三個角色"><strong>RxSwift</strong> 實踐觀察者模式主要需要三個角色</h4>
+
+<h5 id="observable"><strong>Observable</strong></h5>
+
+<pre><code>即可被觀察的對象，可以想做是戰場上的烽火台，前方戰事有變化，可以即刻點燃信號，而且這信號很厲害還可以夾帶任何想要傳送的訊息
+
+至於後方看到信號要做什麼事，就不是峰火台可以干涉的了，Observable 裡面可以放變數、Model、或任何想要被觀察的物件
+</code></pre>
+
+
+
+<h5 id="observer"><strong>observer</strong></h5>
+
+<pre><code>被指派去烽火台值班的人，負責點燃信號火焰，每個 observer 要 implement ObserverType Protocol，這個 protocol 只有一個任務 func on(event: Event&lt;E&gt;)
+就是發起通知事件
+</code></pre>
+
+
+
+<h5 id="observablesubscibe"><strong><code>&lt;Observable&gt;</code>.subscibe</strong></h5>
+
+<pre><code>被指派去觀察烽火台是否有異狀的人，可以指示不同觀察者根據傳遞出的信號訊息做出不同的反應
+</code></pre>
+
+<p>從 on(event: Event) 追蹤下去可以看到</p>
+
+<blockquote>
+  <p>Observerbale 可以發送的 <strong>Event</strong> 有三種</p>
+  
+  <ul>
+  <li>case Next(Element)    /// Next element is produced.</li>
+  <li>case Error(ErrorType)  /// Sequence terminated with an error.</li>
+  <li>case Completed        /// Sequence completed successfully.</li>
+  </ul>
+  
+  <p><em>ObserverType Extension</em> 進一步封裝出 </p>
+  
+  <ul>
+  <li><em>final func onNext(element: E)</em></li>
+  <li><em>final func onCompleted()</em></li>
+  <li><em>final func onError(error: ErrorType)</em> <br>
+  其實都是同一條路，發起通知，只是點燃不同的信號火焰，其中 <em>onNext</em> 跟 <em>onError</em> 都可以夾帶進一步的信號內容</li>
+  </ul>
+</blockquote>
+
+
+
+<h5 id="明白了角色定位那麼要實作一個完整的-rxswift-觀察者模式-自然就是建立這三個角色">明白了角色定位，那麼要實作一個完整的 <strong>RxSwift 觀察者模式</strong> 自然就是建立這三個角色</h5>
+
+
+
+<h4 id="第一步建設烽火台-create-observable">第一步：建設烽火台 (Create <strong>Observable</strong>)</h4>
+
+<p><strong>RxSwift</strong> 的原始碼 playground 中 <em>Creating and Subscribing to Observables</em> 和 <em>Working with Subjects</em> 這兩個章節都是在講這一個步驟，裡頭十幾二十個 Method，都是在建 <strong>Observable</strong></p>
+
+<p>舉例使用 <code>Observable.create()</code>，這是一個常用的建立 Observable 方法 <br>
+原始碼可以看到是 Observable 的 function</p>
+
+<pre class="prettyprint"><code class=" hljs cs">extension Observable {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> func <span class="hljs-title">create</span>(subscribe: (AnyObserver&lt;E&gt;) -&gt; Disposable) -&gt; Observable&lt;E&gt; {
+        <span class="hljs-keyword">return</span> AnonymousObservable(subscribe)
+    }
+}</code></pre>
+
+
+
+<h4 id="第二步指派烽火台的觀測任務observabletype">第二步：指派烽火台的觀測任務(<code>&lt;ObservableType&gt;</code>)</h4>
+
+<p><code>Observable.create()</code> 這個 function closure 裡已經內建了一個值班人員 observer，但他還沒有被指派觀測任務 <br><br>
+假設這個烽火台被蓋在前線，烽火台只有一個發送任務，就是有敵軍出現時要發送數量的情報<br>
+至於情報發去哪？有沒有人接到？就不是這區區一個觀測士兵可以插手的事情了</p>
+
+<pre class="prettyprint"><code class=" hljs sql">let 烽火台 = Observable.<span class="hljs-operator"><span class="hljs-keyword">create</span> { observer <span class="hljs-keyword">in</span>
+                <span class="hljs-keyword">if</span> (敵軍出現) {
+                    observer.<span class="hljs-keyword">on</span>(.<span class="hljs-keyword">Next</span>(敵軍數量))
+                }
+                return NopDisposable.instance
+            }</span></code></pre>
+
+<p>發起信號的角色設定好了，再來就是接收方的角色 <br>
+任何地方都可以決定要不要接收 Observable 的變化，只要訂閱發送方就可以了 <br>
+現在指揮所要建立一個觀測烽火台警報的任務</p>
+
+
+
+<h4 id="第三步主陣營的觀察任務subscribe">第三步：主陣營的觀察任務(Subscribe)</h4>
+
+
+
+<pre class="prettyprint"><code class=" hljs bash">前線.烽火台.subscribeNext { (敵軍數量) <span class="hljs-keyword">in</span>
+            <span class="hljs-keyword">if</span> 敵軍數量 很多 {
+                求援
+            } <span class="hljs-keyword">else</span> {
+                出兵抵擋
+            }
+        }
+        .addDisposableTo(disposeBag)</code></pre>
+
+<p>至止，為一個完整的 <strong>RxSwift 觀察者模式</strong> 實踐，我們的敵軍觀測任務已經完成可以運作 <br>
+另外一個發送方可以有很多個接收方來觀察，即一個前線觀測站發現敵軍，可以多方出兵增援，這是非常合理的</p>
+
+<p>程式碼看到這裡會發現 <code>Observable.create()</code> 中 observer 會回傳 <strong>Disposable</strong> <br>
+<code>&lt;Observable&gt;</code>.subscribe 也會回傳 <strong>Disposable</strong> <br>
+每個發送任務和觀察任務都會回傳的這個型態：<strong>Disposable</strong> 是一個 Protocol，追蹤過去會看到實現了一個 function <em>dispose()</em>，就是中止任務</p>
+
+<blockquote>
+  <p>註：有玩 RxJava 的同學會發現在 RxJava 裡每個觀測任務的回傳是叫 subscription，搜尋 RxSwift 的 RxExmpale 可以發現很多地方也是將回傳的 Disposable 命名為 subscription，兩者是相同的東西</p>
+</blockquote>
+
+<p>接著，可以看到觀測任務最後有個<code>.addDisposableTo(disposeBag)</code></p>
+
+<p>這就像 iOS 使用 <strong>Notification</strong> 時有增加就要有移除 <br>
+<code>NSNotificationCenter.defaultCenter().addObserver</code> <br>
+<code>NSNotificationCenter.defaultCenter().removeObserver</code></p>
+
+<p><strong>rxSwfit</strong> 當然也是，在撤離戰場時，總要將觀察人員帶走 <br>
+很常看到在 <code>.subscribe</code> 後會接 <code>.addDisposableTo(disposeBag)</code> <br>
+<strong>DisposeBag</strong> 點進去可以看到一個存放 <strong>Disposable</strong> 的陣列，所以就想成一個裝 <em>disposable</em> 的袋子，在頁面回收時整袋再一起丟掉 <br>
+而 <code>Disposable.dispose()</code>，就是立刻丟掉，即刻取消這個觀測任務</p>
+
+<p>初期在看範例時看到用法務必點進去了解是哪個身份在做這件事 <br>
+像 <code>.map</code> 是 <strong>ObservableType</strong> 在做的，回傳也是一個 <strong>ObservableType</strong> <br>
+這代表我們可以<code>.map</code> 後再 <code>.map</code> ，連續轉換訊號資料</p>
+
+<p><code>.subscribeNext</code> 回傳是 <strong>Disposable</strong>，這是一個任務的設定完成，所以<code>.map</code> 不能接在 <code>.subscribeNext</code> 後 <br>
+而<code>.subscribeNext</code>後就不能再接<code>.subscribeError</code>，想要同時觀察 <em>onNext</em> 跟 <em>onComplete</em>、<em>onError</em> <br>
+請使用 <code>subscribe(on: (event: RxSwift.Event<Self.E>) -> Void)</code></p>
+
+<h4 id="關於更多名詞介紹">關於更多名詞介紹</h4>
+<h5 id="subject">Subject</h5>
+<p><strong>Subject</strong> 是封裝過的 <strong>Observable</strong>，並且實作了 <strong>ObserverType</strong>，所以可以當作內建一個觀察人員的觀測所，而且可以遠距離指示直接對該對象下指令 <br>
+而前面提到的<code>Observable.create()</code>只能在創建之初給與觀測任務，由觀測人員依照任務內容來判斷發送信號，但 <strong>Subject</strong> 因為實作了 <strong>ObserverType</strong>，所以可以直接 <code>.onNext</code>，如果對象是 <strong>Observerble</strong>，那是 . 不出來的</p>
+
+<blockquote>
+  <p><strong>RxSwift</strong> Playground 文件中介紹了三種 <strong>Subject</strong> 有類型 <br>
+  - PublishSubject <br>
+  - ReplaySubject <br>
+  - BehaviorSubject</p>
+</blockquote>
+
+<p>隨便挑一個 <em>Subject</em> 看程式碼可以看到 <em>Subject </em> 對 <em>onEvent</em> 用 <em>NSRecursiveLock</em> 做了同步處理，避免第一個信號還沒發送完就又要發送第二個信號</p>
+
+<p>又分別依不同 Subject 的特性做進一步加強 <br>
+<em>BehaviorSubject</em> 跟 <em>PublishSubject</em> 在訂閱的地方有也很明顯的不同，我們可以來比較一下 <br>
+<em>BehaviorSubject</em> 被訂閱時可以明顯看到同步執行了 <code>onNext</code></p>
+
+<pre class="prettyprint"><code class=" hljs vbnet"><span class="hljs-keyword">let</span> <span class="hljs-keyword">key</span> = _observers.insert(observer.asObserver())
+observer.<span class="hljs-keyword">on</span>(.<span class="hljs-keyword">Next</span>(_value)) 
+<span class="hljs-keyword">return</span> SubscriptionDisposable(owner: self, <span class="hljs-keyword">key</span>: <span class="hljs-keyword">key</span>)</code></pre>
+
+<p>一樣的地方場景轉到 <em>PublishSubject</em> 就只有訂閱而已</p>
+
+<pre class="prettyprint"><code class=" hljs vbnet"><span class="hljs-keyword">let</span> <span class="hljs-keyword">key</span> = _observers.insert(observer.asObserver())
+<span class="hljs-keyword">return</span> SubscriptionDisposable(owner: self, <span class="hljs-keyword">key</span>: <span class="hljs-keyword">key</span>)</code></pre>
+
+<p>可以得知 <em>PublishSubject</em> 訂閱時拿不到當前的觀察物件，只有在下次 <code>onNext</code> 時會拿到 <br>
+而 <em>BehaviorSubject</em> 則在一訂閱時就會拿到當前物件</p>
+
+<p><em>ReplaySubject</em> 比較複雜，多了 <em>bufferSize</em> 可以運用 <br>
+大概看一下它做了什麼事，在 <code>onNext</code> 時多了 <code>addValueToBuffer(value)</code> <br>
+將 <strong>value</strong> 加進 <strong>buffer</strong> <br>
+在被訂閱時 <code>replayBuffer(AnyObserver)</code> <br>
+持續一路追蹤下次可以推論出根據 <em>ReplaySubject</em> 會在新的訂閱者訂閱時根據 <strong>buffer</strong> 大小補發過往的事件</p>
+
+<p>再來看另一個很常用的方法 <code>Variable(Element)</code> <br>
+這是一個對 <em>Subject</em> 的封裝，裡面內建了一個 <em>BehaviorSubject，</em></p>
+
+<pre class="prettyprint"><code class=" hljs cs"><span class="hljs-keyword">public</span> <span class="hljs-keyword">var</span> <span class="hljs-keyword">value</span>: E {
+    <span class="hljs-keyword">get</span> {
+        _lock.<span class="hljs-keyword">lock</span>(); defer { _lock.unlock() }
+        <span class="hljs-keyword">return</span> _value
+    }
+    <span class="hljs-keyword">set</span>(newValue) {
+        _lock.<span class="hljs-keyword">lock</span>()
+        _value = newValue
+        _lock.unlock()
+
+        _subject.on(.Next(newValue))
+    }
+}</code></pre>
+
+<p>看過 <em>Subject</em> 的程式碼再來看 <em>Variable</em>  <br>
+其實 <em>Variable</em> 就是一個會在 <strong>value</strong> 自動發送 <code>onNext</code> 的 <em>BehaviorSubject</em>，使用上非常方便 <br>
+就不用在資料更改時還要另外運行 <code>.onNext(value)</code></p>
+
+<blockquote>
+  <p>非常建議初學者不要怕麻煩，多追蹤原始碼，除了觀摩大神們的超凡技藝，也能在過程中對 <strong>RxSwift</strong> 有更深入的體會</p>
+</blockquote>
+
+<p>side-effect <br>
+這是我在看文件時很常出現的單字，直翻中文是副作用，單看字面意思會覺得一頭霧水 <br>
+在程式領域 function 執行過程除掉會影響輸入輸出數據的，就是 <em>side-effect</em>，像是外部變數、UI 操作等等，而有 side-effect 的函數，稱為非純函數(<em>Impure Function</em>)，反之則稱為純函數(<em>Pure Function</em>)</p>
+
+<blockquote>
+  <p>以上是 <strong>RxSwift</strong> 的基礎概念，完全理解後就能開始四處看<s>江湖偏方</s>網路範例學習了</p>
+  
+  <p>務必下載 <strong>RxSwift</strong> Project，除了範例外也可以看到全部的封裝代碼，<strong>RxSwift</strong> 更進一步變化應用大都集中在 <strong>Observable</strong> 跟 <strong>RxCocoa</strong></p>
+  
+  <p>針對 <strong>Observable</strong> 的一些封裝處理可以看參考連結的 RxMarbles 網站 <br>
+  
+  <p>針對 <em>Foundation</em> 的物件像 <em>UILabel、UITable etc,</em> 這些放在 <strong>RxCocoa</strong>，都是對 iOS Cocoa 原生物件一些數值的封裝，一層一層追蹤進去，務必搞清楚每個身分的定位，就會發現 Rx 的世界裡各司其職，其實非常有秩序</p>
+</blockquote>
+
+<hr>
+<p>參考連結</p>
+RxSwift GitHub <a target="_blank" href="https://github.com/ReactiveX/RxSwift">[here]</a><br>
+Why use Rx <a target="_blank" href="https://github.com/ReactiveX/RxSwift/blob/master/Documentation/Why.md">[here]</a><br>
+RxMarbles <a target="_blank" href="http://rxmarbles.com">[here]</a><br>
+Wiki Observer pattern 定義 <a target="_blank" href="https://en.wikipedia.org/wiki/Observer_pattern">[here]</a>
 
 							</div>
 
