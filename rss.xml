@@ -1,7 +1,7 @@
 <rss version="2.0">
 	<channel>
 		<title>棒棒u! BLOG</title>
-		<link>http://bunbunu.com/blog</link>
+		<link>https://bunbunu.com/blog</link>
 		<description>棒棒u! 與小夥伴們的文章分享</description>
 		<language>zh-tw</language>
 		<pubDate>Mon, 18 July 2016 03:21:00 GMT</pubDate>
@@ -10,10 +10,10 @@
 		<item>
 			<title>淺入淺出 RxSwift &amp; MVP : Part 1 - 源起</title>
 			<link>
-			http://bunbunu.com/blogs/1
+			https://bunbunu.com/blogs/1
 			</link>
 			<image>
-			http://bunbunu.com/assets/blogimage/blog1.png
+			https://bunbunu.com/assets/blogimage/blog1.png
 			</image>
 			<description>
 			這個月來全面採用 RxSwfit 與 MVP 程式架構的系列心得首部曲
@@ -35,10 +35,10 @@
 		<item>
 			<title>淺入淺出 RxSwift &amp; MVP : Part 2 - 轉承</title>
 			<link>
-			http://bunbunu.com/blogs/2
+			https://bunbunu.com/blogs/2
 			</link>
 			<image>
-			http://bunbunu.com/assets/blogimage/blog2.png
+			https://bunbunu.com/assets/blogimage/blog2.png
 			</image>
 			<description>
 			這個月來全面採用 RxSwfit 與 MVP 程式架構的系列心得二部曲
@@ -55,10 +55,10 @@
 		<item>
 			<title>淺入淺出 RxSwift &amp; MVP : Part 3 - 合</title>
 			<link>
-			http://bunbunu.com/blogs/3
+			https://bunbunu.com/blogs/3
 			</link>
 			<image>
-			http://bunbunu.com/assets/blogimage/blog3.png
+			https://bunbunu.com/assets/blogimage/blog3.png
 			</image>
 			<description>
 			這個月來全面採用 RxSwfit 與 MVP 程式架構的系列心得三部曲
